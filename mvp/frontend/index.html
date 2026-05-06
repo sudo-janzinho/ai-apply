@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Apply - Generer din jobbsøknad</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-83F7JGVNK7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-83F7JGVNK7');
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 36px; margin-bottom: 10px; }
+        .header p { font-size: 18px; opacity: 0.9; }
+        
+        .card { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .card h2 { color: #667eea; margin-bottom: 20px; font-size: 24px; }
+        
+        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .step-number { width: 32px; height: 32px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
+        .step-text { font-size: 16px; color: #333; }
+        
+        .upload-area { border: 3px dashed #ddd; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; }
+        .upload-area:hover { border-color: #667eea; background: #f8f9ff; }
+        .upload-area.dragover { border-color: #667eea; background: #eef2ff; }
+        .upload-area input { display: none; }
+        .upload-icon { font-size: 48px; margin-bottom: 15px; }
+        .upload-text { font-size: 16px; color: #666; }
+        .upload-sub { font-size: 14px; color: #999; margin-top: 8px; }
+        
+        .file-info { background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .file-info.show { display: block; }
+        .file-info .filename { font-weight: 600; color: #667eea; }
+        
+        textarea { width: 100%; min-height: 200px; padding: 15px; border: 2px solid #ddd; border-radius: 12px; font-size: 15px; font-family: inherit; resize: vertical; transition: border-color 0.3s; }
+        textarea:focus { outline: none; border-color: #667eea; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        .input-group input { width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; transition: border-color 0.3s; }
+        .input-group input:focus { outline: none; border-color: #667eea; }
+        
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; width: 100%; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .result { background: #f8f9ff; border-radius: 12px; padding: 25px; margin-top: 20px; display: none; }
+        .result.show { display: block; }
+        .result h3 { color: #667eea; margin-bottom: 15px; }
+        .result-text { white-space: pre-wrap; line-height: 1.6; color: #333; margin-bottom: 20px; }
+        
+        .btn-group { display: flex; gap: 10px; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; box-shadow: none; }
+        
+        .loading { text-align: center; padding: 40px; display: none; }
+        .loading.show { display: block; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .match-score { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px; }
+        .match-score.høy { background: #d4edda; color: #155724; }
+        .match-score.medium { background: #fff3cd; color: #856404; }
+        .match-score.lav { background: #f8d7da; color: #721c24; }
+        
+        .tips { background: #fff9e6; border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 4px; }
+        .tips h4 { color: #856404; margin-bottom: 10px; }
+        .tips ul { margin-left: 20px; }
+        .tips li { margin-bottom: 5px; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI-Apply</h1>
+            <p>Generer skreddersydde jobbsøknader på sekunder</p>
+        </div>
+        
+        <!-- Steg 1: Last opp CV -->
+        <div class="card">
+            <h2>Steg 1: Last opp CV-en din</h2>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Last opp CV som PDF eller DOCX</div>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="cvFile" accept=".pdf,.docx">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Dra og slipp filen her eller klikk for å velge</div>
+                <div class="upload-sub">Støtter PDF og DOCX (max 5MB)</div>
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                ✅ Opplastet: <span class="filename" id="filename"></span>
+            </div>
+        </div>
+        
+        <!-- Steg 2: Lim inn jobbannonse -->
+        <div class="card">
+            <h2>Steg 2: Legg inn jobbannonser</h2>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Lim inn hele jobbannonsen</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="companyName">Firmanavn (valfritt)</label>
+                <input type="text" id="companyName" placeholder="f.eks. Schibsted, DNB, Equinor...">
+            </div>
+            
+            <div class="input-group">
+                <label for="position">Stillingstittel (valfritt)</label>
+                <input type="text" id="position" placeholder="f.eks. Software Engineer, Prosjektleder...">
+            </div>
+            
+            <div class="input-group">
+                <label for="jobAd">Jobbannonse</label>
+                <textarea id="jobAd" placeholder="Lim inn hele jobbannonsen her..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Steg 3: Generer søknad -->
+        <div class="card">
+            <h2>Steg 3: Generer søknad</h2>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">La AI skrive din personlige søknad</div>
+            </div>
+            
+            <button class="btn" id="generateBtn" onclick="generateApplication()" disabled>
+                ✨ Generer søknad nå
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>AI skriver din søknad...</p>
+                <p style="font-size: 14px; color: #999; margin-top: 10px;">Dette tar ca 10-20 sekunder</p>
+            </div>
+            
+            <div class="result" id="result">
+                <h3>🎉 Din søknad er klar!</h3>
+                <div id="matchScore" class="match-score"></div>
+                <div class="result-text" id="applicationText"></div>
+                
+                <div class="tips" id="tipsBox" style="display: none;">
+                    <h4>💡 Tips fra AI:</h4>
+                    <ul id="tipsList"></ul>
+                </div>
+                
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn" onclick="copyToClipboard()">📋 Kopier tekst</button>
+                    <button class="btn btn-secondary" onclick="downloadAsTxt()">💾 Last ned som .txt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8001';
+        let cvText = '';
+        let uploadedFile = null;
+        
+        // Upload area
+        const uploadArea = document.getElementById('uploadArea');
+        const cvFileInput = document.getElementById('cvFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const filenameSpan = document.getElementById('filename');
+        const generateBtn = document.getElementById('generateBtn');
+        
+        // Drag and drop
+        uploadArea.addEventListener('click', () => cvFileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        cvFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        async function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf') && !file.name.toLowerCase().endsWith('.docx')) {
+                alert('Kun PDF eller DOCX støttes!');
+                return;
+            }
+            
+            uploadedFile = file;
+            filenameSpan.textContent = file.name;
+            fileInfo.classList.add('show');
+            
+            // Upload to backend
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch(`${API_URL}/api/upload-cv`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    cvText = data.cv_text;
+                    generateBtn.disabled = false;
+                } else {
+                    alert('Feil ved opplasting: ' + data.detail);
+                }
+            } catch (error) {
+                alert('Kunne ikke koble til serveren. Er backend i gang?');
+            }
+        }
+        
+        async function generateApplication() {
+            const jobAd = document.getElementById('jobAd').value.trim();
+            const companyName = document.getElementById('companyName').value.trim();
+            const position = document.getElementById('position').value.trim();
+            
+            if (!jobAd) {
+                alert('Vennligst lim inn en jobbannonse!');
+                return;
+            }
+            
+            if (!cvText) {
+                alert('Vennligst last opp en CV først!');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+            generateBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('cv_text', cvText);
+                formData.append('job_ad', jobAd);
+                formData.append('company_name', companyName);
+                formData.append('position', position);
+                
+                const response = await fetch(`${API_URL}/api/generate`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Show result
+                    document.getElementById('applicationText').textContent = data.application;
+                    
+                    // Match score
+                    const scoreEl = document.getElementById('matchScore');
+                    if (data.match_score && data.match_score !== 'unknown') {
+                        scoreEl.textContent = `Match: ${data.match_score}`;
+                        scoreEl.className = `match-score ${data.match_score.toLowerCase()}`;
+                        scoreEl.style.display = 'inline-block';
+                    } else {
+                        scoreEl.style.display = 'none';
+                    }
+                    
+                    // Tips
+                    if (data.tips && data.tips.length > 0) {
+                        const tipsBox = document.getElementById('tipsBox');
+                        const tipsList = document.getElementById('tipsList');
+                        tipsList.innerHTML = data.tips.map(tip => `<li>${tip}</li>`).join('');
+                        tipsBox.style.display = 'block';
+                    } else {
+                        document.getElementById('tipsBox').style.display = 'none';
+                    }
+                    
+                    document.getElementById('result').classList.add('show');
+                } else {
+                    alert('Feil ved generering: ' + data.detail);
+                }
+            } catch (error) {
+                alert('Kunne ikke koble til serveren: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                generateBtn.disabled = false;
+            }
+        }
+        
+        function copyToClipboard() {
+            const text = document.getElementById('applicationText').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Kopiert til utklippstavlen!');
+            });
+        }
+        
+        function downloadAsTxt() {
+            const text = document.getElementById('applicationText').textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'soknad.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
