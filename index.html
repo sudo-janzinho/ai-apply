@@ -95,12 +95,16 @@
   <h1>Bedre matchning mellom<br><span>jobbsøker og jobb</span></h1>
   <p class="tagline">Ikke flere ansøkninger. Bedre ansøkninger.</p>
   <p class="subtitle">AI skreddersyr søknaden din for hver eneste annonsen — basert på hvem du er, ikke en mal. Du søker smartere, og arbeidsgiveren finner noen de virkelig vil ha.</p>
-  <div class="cta-box">
-    <input type="email" id="email1" placeholder="Din e-postadresse">
-    <button onclick="signup('email1')">Få early access</button>
+  <form class="cta-box" action="https://api.web3forms.com/submit" method="POST" onsubmit="return handleSignup(event)">
+    <input type="hidden" name="access_key" value="3d9730c2-ce82-4979-9cc4-5c9309a73552">
+    <input type="hidden" name="subject" value="Ny early access signup - ai-apply.no">
+    <input type="hidden" name="redirect" value="https://ai-apply.no#kvittert">
+    <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
+    <input type="email" name="email" id="email1" placeholder="Din e-postadresse" required>
+    <button type="submit">Få early access</button>
     <p class="cta-sub">Gratis å prøve. Ingen spam. Vi kontakter deg når vi lanserer.</p>
     <div class="success" id="success1">✅ Takk! Vi holder deg oppdatert.</div>
-  </div>
+  </form>
 </section>
 
 <!-- Stats -->
@@ -230,36 +234,36 @@
 <section class="cta-bottom">
   <h2>Klar for bedre matchning?</h2>
   <p>Bli med på early access. Gratis å prøve.</p>
-  <input type="email" id="email2" placeholder="Din e-postadresse">
-  <br>
-  <button onclick="signup('email2')">Få early access</button>
+  <form action="https://api.web3forms.com/submit" method="POST" onsubmit="return handleSignup(event)">
+    <input type="hidden" name="access_key" value="3d9730c2-ce82-4979-9cc4-5c9309a73552">
+    <input type="hidden" name="subject" value="Ny early access signup - ai-apply.no">
+    <input type="hidden" name="redirect" value="https://ai-apply.no#kvittert">
+    <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
+    <input type="email" name="email" id="email2" placeholder="Din e-postadresse" required>
+    <br>
+    <button type="submit">Få early access</button>
+  </form>
 </section>
 
 <!-- Footer -->
 <footer>
   <p>&copy; 2026 ai-apply.no — Bedre matchning mellom jobbsøker og jobb</p>
-  <p style="margin-top:6px;"><a href="mailto:hei@ai-apply.no">hei@ai-apply.no</a></p>
+  <p style="margin-top:6px;"><a href="mailto:aiapply@atomicmail.io">aiapply@atomicmail.io</a></p>
 </footer>
 
 <script>
-function signup(id) {
-  const email = document.getElementById(id).value;
-  if (!email || !email.includes('@')) {
-    alert('Vennligst skriv inn en gyldig e-postadresse.');
-    return;
-  }
-  // TODO: Send to backend / mailing list
-  // For now, save locally and show success
-  const existing = JSON.parse(localStorage.getItem('ai-apply-signups') || '[]');
-  existing.push({ email: email, date: new Date().toISOString() });
-  localStorage.setItem('ai-apply-signups', JSON.stringify(existing));
-  
+function handleSignup(event) {
+  // Show success message before redirect
   const s1 = document.getElementById('success1');
   if (s1) s1.style.display = 'block';
-  document.getElementById(id).value = '';
-  
-  // Also save to file for now
-  console.log('Signup:', email);
+  return true; // submit the form
+}
+
+// Show success on return (if hash matches)
+if (window.location.hash === '#kvittert') {
+  const s1 = document.getElementById('success1');
+  if (s1) s1.style.display = 'block';
+  history.replaceState(null, '', window.location.pathname);
 }
 </script>
 </body>
